@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import json
+from quotesbot.Classes import StackItem
 
 
 class NBProductListPage(scrapy.Spider):
     name = "NewBalanceProductListPage"
-    with open('NBMainCategories.json') as MainUrls:
-        data = json.load(MainUrls)
-    start_urls = list(data[0])
+    start_urls = ["newbalance.com.tr/erkek-ayakkabi",]
+    allowed_domains = ["newbalance.com.tr"]
 
     def parse(self, response):
-        jsonoutput = []
         for quote in response.xpath('//*[@id="grid"]/div[1]/div'):
-            yield {
-                'ProductName': quote.xpath('./div/div[2]/a/text()').extract_first(),
-                'ProductUrl': self.start_urls[0]+quote.xpath('./div/div[2]/a/@href').extract_first(),
-            }
+             item = StackItem()
+            item['Name'] = quote.xpath('./div/div[2]/a/text()').extract_first()
+            item['Url'] = self.start_urls[0]+quote.xpath('./div/div[2]/a/@href').extract_first()
+            yield item
 
         CurrentPageNumber = response.css("ul.page-numbers li span.page-numbers.current::text").extract_first()
         LastPage = response.css("ul.page-numbers li:nth-last-child(2) a.page-numbers::text").extract_first()

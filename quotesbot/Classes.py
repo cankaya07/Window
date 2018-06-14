@@ -1,46 +1,48 @@
-import scrapy
+from scrapy.item import Item, Field
 
-class WebSite(scrapy.Item):
-    SiteName = scrapy.Field()
-    HomePageUrl = scrapy.Field()
 
-class Price(scrapy.Item):
-    Price= scrapy.Field()
-    PriceWithDiscount= scrapy.Field()
-    DiscountPerc= scrapy.Field()
-    Currency= scrapy.Field()
-    FreightAmount= scrapy.Field()
+class WebSite(Item):
+    SiteName = Field()
+    HomePageUrl = Field()
 
-class Picture(scrapy.Item):
-    PicturePath = scrapy.Field()
+class Price(Item):
+    Price= Field()
+    PriceWithDiscount= Field()
+    DiscountPerc= Field()
+    Currency= Field()
+    FreightAmount= Field()
 
-class Size(scrapy.Item):
-    SizeName = scrapy.Field()
-    SizeStock = scrapy.Field()
+class Picture(Item):
+    PicturePath = Field()
 
-class VariantColors(scrapy.Item):
-    Color= scrapy.Field()
-    Product= scrapy.Field()
-    IconPicture= scrapy.Field()
+class Size(Item):
+    SizeName = Field()
+    SizeStock = Field()
 
-class Product(scrapy.Item):
-    Name= scrapy.Field()
-    BrandName= scrapy.Field()
-    Code= scrapy.Field()
-    Desc= scrapy.Field()
-    ShippingDate= scrapy.Field()
-    Color= scrapy.Field()
+class VariantColors(Item):
+    Color= Field()
+    Product= Field()
+    IconPicture= Field()
+
+class Product(Item):
+    Name= Field()
+    BrandName= Field()
+    Code= Field()
+    Desc= Field()
+    ShippingDate= Field()
+    Color= Field()
+    Url = Field()
  
     last_updated = scrapy.Field(serializer=str)
 
-class Model(scrapy.Item):
-    Height= scrapy.Field()
-    Weight= scrapy.Field()
-    Chest= scrapy.Field()
-    Waist= scrapy.Field()
-    Hipline= scrapy.Field()
-    Bodysize= scrapy.Field()
+class Model(Item):
+    Height= Field()
+    Weight= Field()
+    Chest= Field()
+    Waist= Field()
+    Hipline= Field()
+    Bodysize= Field()
 
-class BreadCrumbCategory(scrapy.Item):
-    Name = scrapy.Field()
-    Url = scrapy.Field()
+class BreadCrumbCategory(Item):
+    Name = Field()
+    Url = Field()
