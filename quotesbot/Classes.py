@@ -14,6 +14,7 @@ class Price(Item):
 
 class Picture(Item):
     PicturePath = Field()
+    PictureName = Field()
 
 class Size(Item):
     SizeName = Field()
@@ -25,15 +26,18 @@ class VariantColors(Item):
     IconPicture= Field()
 
 class Product(Item):
+    _id = Field()
     Name= Field()
     BrandName= Field()
     Code= Field()
     Desc= Field()
     ShippingDate= Field()
     Color= Field()
-    Url = Field()
- 
-    last_updated = scrapy.Field(serializer=str)
+    url = Field()
+    Size = Field()
+    Picture = Field()
+    Category = Field()
+    SiteName = Field()
 
 class Model(Item):
     Height= Field()

@@ -67,7 +67,7 @@ COOKIES_ENABLED = False
 #ITEM_PIPELINES = {
 #    'quotesbot.pipelines.SomePipeline': 300,
 #}
-ITEM_PIPELINES = ['stack.pipelines.MongoDBPipeline', ]
+ITEM_PIPELINES = {'quotesbot.pipelines.MongoDBPipeline':300, }
 MONGODB_SERVER = "localhost"
 MONGODB_PORT = 27017
 MONGODB_DB = "Vitrin"

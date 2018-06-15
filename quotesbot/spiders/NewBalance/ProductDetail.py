@@ -1,42 +1,62 @@
 # -*- coding: utf-8 -*-
-import scrapy
-
+import scrapy,json
+from quotesbot.Classes import Product
+from quotesbot.Classes import Size
+from quotesbot.Classes import Picture
+from quotesbot.Classes import BreadCrumbCategory
+from pymongo import MongoClient
+from bs4 import BeautifulSoup
 
 class NBProductDetail(scrapy.Spider):
     name = "NewBalanceProductDetail"
-    start_urls = [
-        'https://www.newbalance.com.tr/new-balance-mfl100',
-    ]
+
+    def start_requests(self):
+        client = MongoClient('mongodb://localhost:27017')
+        db = client['Vitrin']
+        collection = db['Sites']
+        for obj in collection.find({"SiteName": 'NewBalanceOfficial'}):
+            p = Product()
+            p= obj
+            yield scrapy.Request('https://www.newbalance.com.tr'+obj["url"], meta={'item':p})
 
     def parse(self, response):
-        ProductName = response.css("h1.product_title::text").extract_first()
+        item = response.meta['item']
+        item["Name"] = response.css("h1.product_title::text").extract_first()
 
         sizes = []
         for size in response.css("#shoes-sizes tr td::text").extract():
-            sizes.append(size)
+            s = Size()
+            s["SizeName"]=size
+            sizes.append(s)
 
         pics = []
-        for pic in response.css(".nav.nav-tabs li a img").xpath('@src').extract():
-            pics.append(pic)
+        for pic in response.css(".nav.nav-tabs li a img").extract():
+            soup = BeautifulSoup(pic, "lxml")
+            p=Picture()
+            p["PictureName"]=soup.find('img')["title"]
+            p["PicturePath"]=soup.find('img')["src"]
+            pics.append(p)
 
-        subCategory = []
-        for subcat in response.css(".breadcrumbs a::text").extract():
+        sCategory = []
+        for subCategory in response.css(".breadcrumbs a").extract():
+            soup = BeautifulSoup(subCategory, "lxml")
+            subcat= soup.find('a').text
             if subcat == "Anasayfa":
                 pass
             elif subcat == "New Balance":
                 pass
-            elif subcat in ProductName:
+            elif subcat == item["Name"]:
                 pass
             else:
-                subCategory.append(subcat)
+                b = BreadCrumbCategory()
+                b["Name"]= subcat
+                b["Url"]= soup.find('a')["href"]
+                sCategory.append(b)
 
-
-
-
-        yield {
-                'ProductName': ProductName,
-                'ProductDesc': response.css(".short-description").extract_first(),
-                'Sizes': sizes,
-                'Pictures': pics,
-                'SubCategory': subCategory
-            }
+        
+        item["Desc"]= response.css(".short-description").extract_first()
+        item["Category"] = subCategory
+        item['Size']= sizes
+        item['Picture'] = pics
+        item['SubCategory'] = sCategory
+        yield item
