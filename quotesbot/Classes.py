@@ -24,6 +24,7 @@ class VariantColors(Item):
     Color= Field()
     Product= Field()
     IconPicture= Field()
+    url = Field();
 
 class Product(Item):
     _id = Field()
@@ -38,6 +39,8 @@ class Product(Item):
     Picture = Field()
     Category = Field()
     SiteName = Field()
+    Price = Field()
+    LinkedProduct = Field()
 
 class Model(Item):
     Height= Field()
