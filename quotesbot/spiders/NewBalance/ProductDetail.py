@@ -55,7 +55,6 @@ class NBProductDetail(scrapy.Spider):
 
         
         item["Desc"]= response.css(".short-description").extract_first()
-        item["Category"] = subCategory
         item['Size']= sizes
         item['Picture'] = pics
         item['SubCategory'] = sCategory
