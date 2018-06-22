@@ -73,6 +73,19 @@ MONGODB_PORT = 27017
 MONGODB_DB = "Vitrin"
 MONGODB_COLLECTION = "Sites"
 
+
+
+
+# ITEM_PIPELINES = {
+#     'blackwidow.pipelines.DefaultValuePipeline': 100,
+#     'blackwidow.pipelines.DuplicatePipeline': 200,
+#     'blackwidow.pipelines.NormalizationPipeline': 300,
+#     'blackwidow.pipelines.SubmitItemPipeline': 400,
+#     # 'scrapy.contrib.pipeline.images.ImagesPipeline': 500,
+# }
+
+
+
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
 #AUTOTHROTTLE_ENABLED = True
