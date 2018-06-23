@@ -41,6 +41,7 @@ class Product(Item):
     SiteName = Field()
     Price = Field()
     LinkedProduct = Field()
+    Additional = Field()
 
 class Model(Item):
     Height= Field()
