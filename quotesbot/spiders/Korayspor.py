@@ -1,17 +1,43 @@
-# -*- coding: utf-8 -*-
-from scrapy.contrib.spiders import CrawlSpider, Rule, Spider
+from scrapy.contrib.linkextractors import LinkExtractor
+from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.selector import Selector
-from scrapy.http.request import Request
+from scrapy.http import Request, HtmlResponse
 from bs4 import BeautifulSoup
 from quotesbot.Classes import Size, Picture, BreadCrumbCategory, Price,VariantColors, Product
+import inspect
+from quotesbot.Tools import PrepareJSONDoubleQuoteProblem
+import json
 
-class ADDSProductListPage(Spider):
+class KoraysporProductListPage(CrawlSpider):
     name = "KoraySporProductListPage"
+    allowed_domains = ['www.korayspor.com', ]
     start_urls = [
         'https://www.korayspor.com/erkek-spor-ayakkabi/',
     ]
-    
-    def parse(self, response):
+
+    rules = (
+        # find next page
+        Rule(
+            LinkExtractor(
+                allow=(r'\/?page=\d+', ),
+                restrict_css=('.urunPaging_pageNavigation', ),
+                unique=True,
+            ),
+            callback='productList',
+            follow=True,
+        ),
+        # # go detail page
+        # Rule(
+        #     LinkExtractor(
+        #         restrict_css=('.emosInfinite.ems-inline', ),
+        #         unique=True,
+        #     ),
+        #     callback='product_detail',
+        # ),
+     )
+ 
+  
+    def productList(self, response):
         sel = Selector(response)
         contents = sel.xpath('//*[@id="ajxUrunList"]/div/ul')
 
@@ -38,42 +64,79 @@ class ADDSProductListPage(Spider):
             item["Price"] = p
             item["Category"] = c
 
-            yield item
+            yield Request(self.__to_absolute_url(response.url,item["url"]), callback=self.product_detail, meta={'item':item})
 
-        #paging part
-        aElement = BeautifulSoup(str(sel.css('.urunPaging_pageNavigation a').extract()), "lxml").find("a",id=lambda value: value and value.endswith("_lnkNext"))
-        if aElement is not None:
-            if aElement.find("span").text == ">>":
-                yield Request('https://www.korayspor.com'+str(aElement["href"]))
-                #yield Request('https://www.korayspor.com'+str(aElement["href"]))
-    
-    def parse_details(self,response):
-        self.log(response)
+	
+    def __to_absolute_url(self, base_url, link):
+        from urllib import parse
+        link = parse.urljoin(base_url, link)
+        return link
+
+    def product_detail(self, response):
         item = response.meta['item']
-        
-        sel = Selector(response)
-        sizes = []
-        for size in sel.css("#dropdown-options-scd1-urunDetay0 a div::text").extract():
-            self.log(size)
-            s = Size()
-            s["SizeName"]=size
-            sizes.append(s)
 
         pics = []
-        for pic in sel.css("ul.swiper-wrapper.slide-wrp li.swiper-slide").extract():
-            self.log(pic)
+        for pic in response.css(".swiper-wrapper.slide-wrp li").extract():
             soup = BeautifulSoup(pic, "lxml")
             p=Picture()
             p["PictureName"]=soup.find('img')["alt"]
             p["PicturePath"]=soup.find('img')["src"]
             pics.append(p)
+
+        sCategory = []
+        for subCategory in response.css(".navigasyon.urunNavigasyon span a").extract():
+            soup = BeautifulSoup(subCategory, "lxml")
+            subcat= soup.find('a').text
+            if subcat == "Anasayfa":
+                pass
+            elif subcat == item["Name"]:
+                pass
+            else:
+                b = BreadCrumbCategory()
+                b["Name"]= subcat
+                b["Url"]= soup.find('a')["href"]
+                sCategory.append(b)
         
-        # # item["Desc"]= response.css(".short-description").extract_first()
-        item['Size']= sizes
+        item["Desc"]= response.css('.ems-prd-detail-template').extract_first()
+        #item['Size']= sizes
         item['Picture'] = pics
-        # # item['SubCategory'] = sCategory
+        item['Category'] = sCategory
+        yield Request('https://www.korayspor.com/usercontrols/urunDetay/ajxUrunSecenek.aspx?urn=624047&stk=2&std=True&scm=NUMARA:%20Seçiniz&resimli=1&fn=dty&type=scd1&index=0&objectId=ctl00_u19_ascUrunDetay_dtUrunDetay_ctl00&runatId=urunDetay&scd1=0&lang=tr-TR', callback=self.sizes)
         
-        return item
+        self.log(item)
+
+    def sizes(self,response):
+        sizes = []
+        for size in BeautifulSoup(response, "lxml").find_all('div'):
+            s = Size()
+            s["SizeName"]=size.text
+            self.log(size.text)
+            sizes.append(s)
+
+        yield sizes
+
+ 
+        
+    # def parse_details(self,response):
+    #     self.log(response)
+    #     item = response.meta['item']
+        
+    #     sel = Selector(response)
+    #     sizes = []
+    #     for size in sel.css("#dropdown-options-scd1-urunDetay0 a div::text").extract():
+    #         self.log(size)
+    #         s = Size()
+    #         s["SizeName"]=size
+    #         sizes.append(s)
+
+
+        
+    #     # # item["Desc"]= response.css(".short-description").extract_first()
+    #     item['Size']= sizes
+    #     item['Picture'] = pics
+    #     # # item['SubCategory'] = sCategory
+        
+    #     self.log(item)
         
  
 
