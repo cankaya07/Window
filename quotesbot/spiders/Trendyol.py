@@ -17,7 +17,7 @@ class TrendYolProductListPage(CrawlSpider):
         'https://www.trendyol.com/erkek+giyim?qs=navigation',]
 
     rules = (
-        # find next page
+        # find next page 
         Rule(
             LinkExtractor(
                 allow=(r'erkek+ayakkabi?qs=navigation&pi\d+', ),

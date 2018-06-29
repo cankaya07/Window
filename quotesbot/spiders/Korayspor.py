@@ -33,7 +33,7 @@ class KoraysporProductListPage(CrawlSpider):
         #         unique=True,
         #     ),
         #     callback='product_detail',
-        # ),
+        # ), 
      )
  
   
