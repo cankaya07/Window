@@ -77,6 +77,8 @@ class MarkafoniProductListPage(CrawlSpider):
                         v["url"]=i["seo"]
                         v["IconPicture"]=i["product_image"]
                         variants.append(v)
+                    elif:
+                        item["Color"] = i["color_name"]
                 item["LinkedProduct"]=variants
             elif s.find('GTMPush({"ecommerce"')>0:
                 j = json.loads(s[s.index('GTMPush({"ecommerce"'):].replace('GTMPush(',"").replace(');',""))
